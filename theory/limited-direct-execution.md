@@ -19,3 +19,4 @@ kernel stack is necessary because the routine performed via the trap handler use
 previous step). Note that if the trap was NOT a context switch, then the trap would do its business, return-from-trap, and step 3 would be carried out on the process A --
 no need to save the state (i.e the context, which was originally saved to the kernel stack) to the process structure. That 
 is only necessary because this is a context switch, so the interrupt has to save the kernel stack to the process structure. I don't really get WHY you need to save the context to the process structure if you already have the kernel stack saved in the process structure.
+3. The hardware restores registers from the kernel stack of B and resumes execution of that process.
