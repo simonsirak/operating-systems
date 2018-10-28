@@ -21,3 +21,23 @@ However, the hardware (processor) must have registers for a base register and bo
 keep track of free memory, usually via a free list (list of free memory intervals).
 
 ## Segmentation: A Step Up
+Segmentation aims to tackle one flaw in the pure base-bounds approach; internal fragmentation, i.e when memory within a 
+process stays unutilized. The core of segmentation is to literally split the process into segments; one for code, heap, 
+stack for instance. We can then keep track of base-bound pairs for each segment in the processor, and thus place them 
+anywhere in memory, reducing the internal fragmentation. In order to know which segment is being addressed by a virtual 
+address, we let the first few bits of the virtual address be sort of "indices" for the different segments. The aim is 
+to have all indices covered by some actual segment that is used, otherwise memory will go unused. So for instance if we 
+have the segments code, static, heap, stack, then 00 xxxxx could refer to any code address, 01 xxxxx for any static address 
+etc.. Using "indices" is an explicit approach. An implicit approach would be for the hardware to figure out the type of address from the context. 
+
+However, in doing this we also need to consider the "growing" direction. Thus, hardware needs a separate bit for describing the direction (positive = 1, negative = 0). If you have read-only sections with segmentation, you can even share them between 
+similar processes (such as the code section). But you'd need to store three extra bits to signal read-write-execute priviliges in the hardware.
+
+This is an example of a coarse-grained segmentation. A fine-grained segmentation would require several smaller-sized and segments which would need more resources from the hardware (such as a segment table).
+
+Unfortunately, there is still another major issue with segmentation; external fragmentation, i.e that memory between segments 
+are poorly utilized after a while. There are ways to manage this (e.g by good process-creation algorithms to prevent external
+fragmentation, or by compacting main memory, i.e reorganize it, in order to fix the external fragmentation). We will cover the 
+prevention next.
+
+## 
