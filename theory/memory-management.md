@@ -31,3 +31,11 @@ size 2X. If you are in a "recursion depth" of k, then the buddy simply is the sa
 bit flipped. For instance, any two buddy leaves (deepest recursion) have the last bit flipped (counting from the left).
 
 ## More on Managing Memory
+When you allocate memory of size X, you don't actually allocate memory of size X. You allocate memory of size X+8 or something, where 8 symbolizes two bytes: A magic number (identifying the memory) and the size of the requested allocation (which would contain the value X in this case). So these extra values need to be taken into account when allocating. The 
+pointer returned is the virtual base address of the remaining X addresses, i.e right after the magic number.
+
+Also, every free interval in the free list makes up a node. Each node points to some "base" virtual address representing
+the start of the interval. Each node then uses 8 bytes (two integers) to store the size of the interval (minus the 8 bytes 
+from the two integers, which give the area of the "actual free space") and a pointer to the next free interval node. When 
+converting a node into allocated memory from a request of size X, you take the node pointer, add 8 bytes (this time representing the two integers needed for the size of the request and the magic number), and return that pointer. When doing so, you move the node so that it points to the address just after the X+8 allocated bytes. Then, add 8 bytes (representing 
+the new size of the new interval, as well as the pointer to the next free interval which you had previously).
