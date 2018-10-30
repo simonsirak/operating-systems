@@ -10,7 +10,9 @@ If we assume a linear page table (an array where array[VPN] returns the PFN, phy
 each such entry in the array contains one integer. Also assume the page table lives in physical memory and the OS keeps a physical 
 address of its base. The first majority of bits contain the PPN/PFN. The remaining bits contain data such as:
 
-* valid bit: if page has not been used yet by the program it is marked invalid. If the process tries to access that page error will occur.
+* valid bit: if page has not been used yet by the program it is marked invalid. If the process tries to 
+access that page error will occur. You can thus not even allocate those pages in the first place, making sparse processes take up 
+way less space.
 * protection bits: R/W/E
 * dirty bit: Signals if the page was modified since it was last brought to main memory. In that case, data may not be up to date.
 * reference bit: Signals if page has recently been accessed, good for replacement policies. 
