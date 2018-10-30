@@ -23,3 +23,8 @@ extra memory access just to find the PFN (or rather, the PTE from which you get 
 # Two Major Problems
 We see that there are two major problems: First of all, we perform a whole extra memory access for EACH instruction/explicit memory 
 access. That is expensive. Also, the page table may take up a huge amount of memory. We need to make this more efficient.
+
+## Table Lookaside Buffer - Solution to Slow Paging
+> Note: TLB is essentially a cache for transforming virtual addresses to physical. There may in turn exist a data cache in the processor,
+responsible for storing physical address-accesses made, using the concepts of spatial and temporal locality -- just as we learnt in the 
+course IS1500. Thus, there may exist several caches but for entirely different purposes.
