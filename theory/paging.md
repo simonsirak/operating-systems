@@ -45,3 +45,9 @@ a valid PTE in it), protection bits (like page table), dirty bit (since caches m
 One last core thing that is stored in each TLB entry is an ASID (Address Space Identifier); it is like a PID, but for identifying an 
 address space. This means the OS must also store an ASID value for each process. Thus the hardware also needs a register for the ASID
 of the current process. This yields much better context switches than having to flush the TLB each context switch.
+
+## Smaller Tables - Reducing the Memory Needed for Paging
+-- TODO --
+
+# One Third Problem
+One more problem connected to TLB:s are how to choose a good replacement policy for not just TLB replacements but replacements in general. This will be tackled further when page swapping is discussed.
