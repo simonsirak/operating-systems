@@ -25,6 +25,23 @@ We see that there are two major problems: First of all, we perform a whole extra
 access. That is expensive. Also, the page table may take up a huge amount of memory. We need to make this more efficient.
 
 ## Table Lookaside Buffer - Solution to Slow Paging
-> Note: TLB is essentially a cache for transforming virtual addresses to physical. There may in turn exist a data cache in the processor,
+> Note: TLB is essentially a fully associative cache (all entries are put into ways of only one existing set) for transforming virtual addresses to physical. There may in turn exist a data cache in the processor,
 responsible for storing physical address-accesses made, using the concepts of spatial and temporal locality -- just as we learnt in the 
 course IS1500. Thus, there may exist several caches but for entirely different purposes.
+
+The table lookaside buffer, TLB for short, is a way to reduce the number of extra memory accesses needed for each virtual address translation. It is a cache that is used to store common PTE:s. The process of translating a virtual address is usually to try accessing 
+the TLB using the VPN; if the read was successful and the PTE is not protected then use the corresponding PFN; otherwise, you insert the PTE of that VPN into the TLB and then retry the access algorithm, this time getting a TLB hit. 
+
+This cache can either be managed by hardware (which would require a built-in flushing mechanism and hardware knowledge of the page table 
+data structure such as its base register and internal structure) or by software. If by software, then there are a few things to 
+note. First, the software would need a trap handler for a TLB miss. Second, the return-from-trap needs to retry the last instruction, as 
+opposed to "the next" instruction for regular interruptions/traps (this requires the hardware to save different PC:s depending on the
+exception, which shouldn't be too hard to implement into hardware). Lastly, the first instruction of the TLB miss trap handler must not 
+yield an exception, since otherwise an infinite chain of exceptions might occur. This last one can be solved by letting the trap handler live in physical memory (so no virtual address) or reserve some entries in the TLB for permanently valid virtual-physical translations such as for this trap handler. These permanently valid translations are called *wired* and always hit.
+
+The TLB doesn't just store the PTE: It also stores a valid bit (not the same as valid bit of page table; TLB valid says if the entry has 
+a valid PTE in it), protection bits (like page table), dirty bit (since caches may have outdated information).
+
+One last core thing that is stored in each TLB entry is an ASID (Address Space Identifier); it is like a PID, but for identifying an 
+address space. This means the OS must also store an ASID value for each process. Thus the hardware also needs a register for the ASID
+of the current process. This yields much better context switches than having to flush the TLB each context switch.
