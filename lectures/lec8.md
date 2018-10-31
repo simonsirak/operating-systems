@@ -24,3 +24,4 @@ istället approximerar man LRU.
 
 FIFO suger dase ju mer minne/sidor du har
 
+Clock-algoritmen är lite sämre än LRU. Men är väldigt billig att implementera.
