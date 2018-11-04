@@ -47,7 +47,25 @@ address space. This means the OS must also store an ASID value for each process.
 of the current process. This yields much better context switches than having to flush the TLB each context switch.
 
 ## Smaller Tables - Reducing the Memory Needed for Paging
--- TODO --
+The goal is to reduce memory by cutting out the internal fragmentation. One hybrid solution would be by segmenting the page 
+table into segments for the code, heap and stack. However that introduces the issues of segmentation (issues with external framgentation).
+
+One sustainable solution is multi-level page tables. Just as how the page table entry points to a physical page in memory,
+we can split the page table itself into pages that fit into one of the virtualized memory's physical tables. These pages can 
+in turn be accessed via a page directory, where each entry in the page directory is a page of the page table. With this system
+we now only need to store the page directory in memory. Furthermore, only the pages of the page table that actually have page 
+table entries will need to be allocated, causing them to take less memory. Even furthermore, it is easy to expand the page table itself (should you ever need to); simply grab a new page, map it to a corresponding slot in the page directory that is consistent with the VPN (for instance, the stack would allocate the PDE above the last PDE for the stack) and also allocate a
+page within that section of the page table, and finally set the PDE to have valid bit 1. For a PDE to have valid bit 1, it
+must have at least one allocated page within itself.
+
+We now see that the VPN can be split into 3 general parts: The Page Directory Index (PDI), the Page Table Index (PTI) and the 
+offset within the actual page. The amount of offset bits is chosen based on the page size. The number of PTI bits is the same 
+size, since we want each "chunk" of page table entries to fit nicely into one page. The first few bits are therefore what 
+determine the PDI.
+
+Above only describes a 2-level page table, but it is easy to generalize. For instance, if for some reason the page directory 
+in a 2-level page table still a few pages worth of entries, you can simply add another layer. However, while adding more 
+layers reduces the memory used by a page table, it adds one more memory access in the case of a TLB miss.
 
 # One Third Problem
 One more problem connected to TLB:s are how to choose a good replacement policy for not just TLB replacements but replacements in general. This will be tackled further when page swapping is discussed.
