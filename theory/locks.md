@@ -77,3 +77,7 @@ A thread is unparked once the lock is unlocked by the currently "lock-owning" th
 
 This implementation can be the victim of wakeup races, a special kind of data race occuring when a thread is about to be parked (until the lock is released), but then a context-switch occurs to a thread that releases the lock (with no other threads waiting for the lock). Then, if the originally mentioned thread is parked, it might stay parked indefinitely. This can be solved by another OS-function (to be used before resetting the guard) that we are about to park. This function notifies 
 the OS that if someone unparks the thread before it is actually parked, the park will be a no-op (no operation done).
+
+> Questions:
+> Locks are implemented using queues. Are the queues themselves concurrently implemented?
+> Why is volatile used sometimes?
