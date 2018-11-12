@@ -80,7 +80,14 @@ the OS that if someone unparks the thread before it is actually parked, the park
 
 > Questions:
 > Locks are implemented using queues. Are the queues themselves concurrently implemented?
+
+They probably aren't. Only the lock holder will ever modify the lock, so it is not necessary to have it be concurrent.
+
 > Why is volatile used sometimes?
+
+
+
+---
 
 It is good to note that you shouldn't waste too much time on complete fairness, but avoiding starvation might be okay. Deadlocks and similar blunders should be avoided though. Also, remember that some schedulers can temporarily allow processes and threads to give away its priority. So this can be used when a low prio thread takes the lock that a high prio thread then 
 has to wait for.
