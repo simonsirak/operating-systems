@@ -70,12 +70,10 @@ A lock should contain a flag value, a guard value and a queue.
 
 The guard value is used as "a lock for the lock-function" with the help of TestAndSet, so that no two threads can be inside the lock function at the same time. This causes spinning, but only until the other thread currently executing the lock-function can finish the lock-function. So the spinning does not depend on the user code. 
 
-Once a particular thread is in the lock function, we check if the lock itself is occupied. If not, we acquire it and reset the guard value. If yes, then we add the thread to the lock queue, reset the guard and park the thread. The parking means put the thread to sleep.
+Once a particular thread is in the lock function, we check if the lock itself is occupied. If not, we acquire it and reset the guard value. If yes, then we add the thread to the lock queue, reset the guard and park the thread. The parking means put the thread to sleep until someone explicitly unparks the thread. Note that we never set the lock flag to 0 unless the queue is 
+empty. This is because we otherwise "pass the baton" from the releasing thread to the thread next up for getting the lock.
 
-A thread is unparked once the lock is unlocked by the currently "lock-owning" thread. An implementation can be found in page 318 of 
-"Operating Systems: Three Easy Pieces".
+A thread is unparked once the lock is unlocked by the currently "lock-owning" thread. An implementation can be found in page 318 of "Operating Systems: Three Easy Pieces".
 
-This implementation can be the victim of wakeup races, a special kind of data race occuring when a thread is about to be parked (until 
-the lock is released), but then a context-switch occurs to a thread that releases the lock (with no other threads waiting for the lock). 
-Then, if the originally mentioned thread is parked, it might stay parked indefinitely. This can be solved by another OS-function (to be 
-used before resetting the guard) that we are about to park.
+This implementation can be the victim of wakeup races, a special kind of data race occuring when a thread is about to be parked (until the lock is released), but then a context-switch occurs to a thread that releases the lock (with no other threads waiting for the lock). Then, if the originally mentioned thread is parked, it might stay parked indefinitely. This can be solved by another OS-function (to be used before resetting the guard) that we are about to park. This function notifies 
+the OS that if someone unparks the thread before it is actually parked, the park will be a no-op (no operation done).
