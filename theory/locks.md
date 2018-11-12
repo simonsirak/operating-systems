@@ -81,3 +81,5 @@ the OS that if someone unparks the thread before it is actually parked, the park
 > Questions:
 > Locks are implemented using queues. Are the queues themselves concurrently implemented?
 > Why is volatile used sometimes?
+
+It is good to note that you shouldn't waste too much time on complete fairness, but avoiding starvation might be okay. Deadlocks and similar blunders should be avoided though.
