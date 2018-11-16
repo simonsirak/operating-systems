@@ -33,7 +33,59 @@ Let's try using these rules in an implementation of the Producer/Consumer proble
 ## The Producer Consumer Problem
 The problem describes the problem of letting producers and consumers access a shared buffer, each producer/consumer working 
 as a separate thread. We will implement this using locks and CVs as described by the suggested rules above. I actually jumped 
-the gun on some tips for implementation by writing the above rules. But let's implement it! We will later see an implementation
-using Semaphores as well.
+the gun on some tips for implementation by writing the above rules. But let's implement it! We will later see an implementation using Semaphores as well.
 
+Assume we have some shared resource `int buffer` which can contain 1 item. Then the following code should work:
 
+```C
+lock_t lock;
+cond_t fill, empty;
+int buffer; // shared resource that only changes when the shared resource 'count' changes
+int count = 0; // shared resource that dictates the condition
+
+void put(int value){
+  assert(count == 0); // only produce on a non-full buffer
+  count++;
+  buffer = value;
+}
+
+int get(){
+  assert(count == 1); // only consume from a non-empty buffer
+  count--;
+  return buffer;
+}
+
+void produce(){
+  while(1){
+    lock(&lock); // attempt to read/write to shared resources, so must lock
+    
+    while(count == 1){ // wait if buffer is full
+      wait(&empty, &lock); // wait until the someone has issued an "emptied" signal
+    }
+    
+    put(42); // put some value now, since we know the buffer has room.
+    signal(&fill); // signal that the buffer has been filled with something.
+    
+    unlock(&lock);
+  }
+}
+
+void consume(){
+  while(1){
+    lock(&lock); // attempt to read/write to shared resources, so must lock
+    
+    while(count == 0){ // wait if buffer is empty
+      wait(&fill, &lock); // wait until the someone has issued a "filled" signal
+    }
+    
+    printf("%d", get()); // get value now, since we know buffer has room.
+    signal(&empty); // signal that the buffer has been partially emptied by 1 unit.
+    
+    unlock(&lock);
+  }
+}
+```
+
+This code follows the design suggestions from the bullet points above. Fortunately, these are the only issues we need to 
+keep in mind for this particular problem. In order to expand to a buffer of arbitrary size, you need to replace the buffer 
+with an array and use it as a circular queue/ring buffer. The mechanics themselves are the same though.
