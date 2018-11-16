@@ -55,7 +55,7 @@ int get(){
   return buffer;
 }
 
-void produce(){
+void *produce(void *args){
   while(1){
     lock(&lock); // attempt to read/write to shared resources, so must lock
     
@@ -70,7 +70,7 @@ void produce(){
   }
 }
 
-void consume(){
+void *consume(void *args){
   while(1){
     lock(&lock); // attempt to read/write to shared resources, so must lock
     
@@ -89,3 +89,5 @@ void consume(){
 This code follows the design suggestions from the bullet points above. Fortunately, these are the only issues we need to 
 keep in mind for this particular problem. In order to expand to a buffer of arbitrary size, you need to replace the buffer 
 with an array and use it as a circular queue/ring buffer. The mechanics themselves are the same though.
+
+The special argument/return types are simply so that you can start these functions as separate threads.
