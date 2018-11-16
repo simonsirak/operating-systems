@@ -55,7 +55,7 @@ int get(){
   return buffer;
 }
 
-void *produce(void *args){
+void *producer(void *args){
   while(1){
     lock(&lock); // attempt to read/write to shared resources, so must lock
     
@@ -70,7 +70,7 @@ void *produce(void *args){
   }
 }
 
-void *consume(void *args){
+void *consumer(void *args){
   while(1){
     lock(&lock); // attempt to read/write to shared resources, so must lock
     
