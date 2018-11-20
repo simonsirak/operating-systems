@@ -22,3 +22,6 @@ and then proceed. For 1MB of data, that would be horrible. Thus, we use a dedica
 The CPU tells the DMA where and what data to store in a chosen device (also chosen by the data store), and the DMA handles the rest. 
 This frees the CPU from explicitly waiting for the common operation of storing data/sending commands to a device.
 
+In order for the OS to handle various kinds of devices, each device is required to have a device driver that, for each OS-related 
+operation on a device of a certain kind, the driver has implemented the operation based on the devices own hardware. An interesting 
+thing to note is that the device drivers make up a large amount of the OS itself, if counted as part of the OS.
