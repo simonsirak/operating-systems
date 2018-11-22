@@ -39,6 +39,6 @@ If you have a system that puts stuff only in cache (write-back), but then hard-r
 If you have a multicore system then several processes/threads may compete for IO resources, so untimely context switches during IO requests can make several processes think they have control of a certain IO device. Usually you would need to have 
 some sort of lock or condition variable to ensure that only one request per IO device is done at a time, or are buffered properly.
 
-In order to make the DMA work, the (RAM) memory bus is shared so that IO devices can also write directly to the RAM (so we can read status and store data etc). So the DMA for example can read data from the RAM, via the memory bus, and write that data to the HDD. It can also send requests directly to the other devices. 
+In order to make the DMA work, the (RAM) memory bus is shared so that IO devices can also write directly to the RAM (so we can read status and store data etc). So the DMA for example can read data from the RAM, via the memory bus, and write that data to the HDD. It can also send requests directly to the other devices. All of the memory bus bandwidth is seldom used at once otherwise, since cache and stuff is so efficient.
 
 The memory-mapped IO is handled on a separate chip. The MMU is on the CPU, but the translated address is handled by a chipset that sends the data from the CPU to the corresponding device, if it is memory mapped, instead of mapped to the RAM. 
