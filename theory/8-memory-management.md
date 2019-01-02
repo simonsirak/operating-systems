@@ -23,12 +23,14 @@ first fit".
 
 The binary buddy allocator algorithm is a more advanced approach. Assume you have a binary memory. Then, you keep splitting the size 
 in two until the size is big enough such that there exists a free memory area of that size able to contain the request and 
-no smaller size is possible. This is relatively fast, logn actually. However it can have horrible internal fragmentation. 
+no smaller size is possible. This is relatively fast, logn actually. However it can have horrible internal fragmentation (about a third of the total space is lost). 
 The buddy algorithm is elegant because when you deallocate memory, it is very easy to coalesce: Just deallocate, then check if 
 the "buddy" is free (i.e the memory within the same "containing block"). If it is free, coalesce, and check the now bigger intervals' 
 buddy if its free. What is a buddy och a block of size X? Well, it is another block of size X such that they form a block of 
 size 2X. If you are in a "recursion depth" of k, then the buddy simply is the same address as the current block with the k:th
 bit flipped. For instance, any two buddy leaves (deepest recursion) have the last bit flipped (counting from the left).
+
+> It is important to stress that the binary buddy allocator is not related to the use of paging; it is simply a policy that decides how memory is split and coalesced (and allocated) on the main memory (as with all free-memory management). Paging is moreso about how to define virtual memory: Paging defines it in terms of pages.
 
 ## More on Managing Memory
 When you allocate memory of size X, you don't actually allocate memory of size X. You allocate memory of size X+8 or something, where 8 symbolizes two bytes: A magic number (identifying the memory) and the size of the requested allocation (which would contain the value X in this case). So these extra values need to be taken into account when allocating. The 
