@@ -21,7 +21,7 @@ First fit takes the first satisfying interval, which is fast but uses up the mem
 fit is First fit, except you keep track of the last interval used and start the search from there next time, to find the "next 
 first fit".
 
-The binary buddy allocator algorithm is a more advanced approach. Assume you have a binary memory. Then, you keep splitting the size 
+The binary buddy allocator algorithm is a more advanced approach, and does not require a list of the free memory. Instead, assume you have a binary memory. Then, you keep splitting the size 
 in two until the size is big enough such that there exists a free memory area of that size able to contain the request and 
 no smaller size is possible. This is relatively fast, logn actually. However it can have horrible internal fragmentation (about a third of the total space is lost). 
 The buddy algorithm is elegant because when you deallocate memory, it is very easy to coalesce: Just deallocate, then check if 
