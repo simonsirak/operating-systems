@@ -15,6 +15,5 @@ registers that constitute the current state of the CPU for a process, and is use
 The hardware then jumps to the trap handler, which is essentially
 a procedure in the OS. If this was any interrupt, then this ensures that the current state of A is preserved. Saving to the
 kernel stack is necessary because the routine performed via the trap handler uses those registers.
-2. The OS performs the switch by entering the trap handler (which makes us use the kernel stack instead of the user space stack). It chooses the other process B using some policy. It then saves the state of all registers at that point in the trap handler to the process of A, and loads the registers of B. That way, we resume the context switch as process B. saves the registers of A onto its process structure (using the kernel stack of A saved in the 
-previous step).
+2. The OS performs the switch by entering the trap handler (which makes us use the kernel stack instead of the user space stack). It chooses the other process B using some policy. It then saves the state of all registers at that point in the trap handler to the process of A, and loads the registers of B. That way, we resume the context switch as process B.
 3. The hardware restores user registers from the kernel stack of B (i.e registers of the actual process) and resumes execution of that process.
