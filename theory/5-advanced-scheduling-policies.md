@@ -11,17 +11,17 @@ processes to highest priority after some other period/number of timer interrupts
 
 More specifically, here are the ground rules, where A and B are processes and P(X) is the priority of X:
 
-1. Processes start at the highest priority.
-2. If P(A) > P(B) then run A.
+1. Processes start at the highest priority. We assume each new job is short to give all jobs a fair shot.
+2. If P(A) > P(B) then run A. 
 3. If P(A) = P(B) then run them in a RR manner.
-4. If a process has run longer than some period D, then it is demoted to a lower priority.
-5. After some period R, reset all process priorities to the highest priority.
+4. If a process has been in a certain queue longer than some period D *in total since its arrival to the queue*, then it is demoted to a lower priority. The part in italics renders the process unable to game the OS by performing an IO operation right before D time units have passed (otherwise, the process could reset the timer using the IO operation).
+5. After some period R, reset all process priorities to the highest priority. This gives processes that change behaviour (from long-running, number-crunching job to interactive job) a fair shot. It also helps avoid starvation by letting long-running jobs back to a high-priority queue, so they get some CPU time.
 
 ## Proportional Share
 This scheduling policy bases itself on randomization. The general idea is that each process is assigned some number of tickets. The order and which tickets do not matter, just the number of tickets, since everything is random anyway. Then, 
 before each context switch, a random number in the range 0-MAXTICKET is drawn. Then, simply traverse the list of processes 
 and keep track of a counter that adds the number of tickets each process has until the counter exceeds the drawn ticket. 
-If the drawn ticket was larger than the ticket count for all the previous processes, but larger for the current process, 
+If the drawn ticket was larger than the ticket numbers for all the previous processes, but not for the current process, 
 then (if we label the encountered tickets 0 and upwards) the drawn ticket is held by the current process. Simply choose 
 that process and you are done.
 
