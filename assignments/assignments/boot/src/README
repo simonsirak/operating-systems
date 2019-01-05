@@ -1,0 +1,53 @@
+Tools that you need:
+
+nasm
+
+qemu
+
+grub-mkrescue
+grub-pc-bin
+xorriso
+
+
+compile boot.asm uing nasm
+
+> nasm -f bin -o boot.bin boot.asm
+
+We can now start a virtual machine (QEMU) using the drive image
+
+> qemu-system-x86_64 -drive file=boot.bin,index=0,media=disk,format=raw
+
+You can also build a VirtualBox hard drive and start a VirtulBox machine.
+
+> qemu-img convert -f raw -O vdi boot.bin boot.vdi
+
+Now start VirualBox and create a new machine where you give boot.vdi
+as the hard drive image.
+
+You can also build a bootable USB drive and boot your own machine but
+this will require that you set up the BIOS to take the USB drive as
+the first hard drive to boot from. It will also require that you
+machine can be set to allow legacy BIOS master boot records insted of
+regular UEFI systems.
+
+Building the GRUB system
+
+> nasm -f elf32 multiboot_header.asm 
+> nasm -f elf32 kernel.asm
+
+> ld -m elf_i386 -o kernel.bin -T linker.ld multiboot_header.o kernel.o
+
+> mkdir cdrom
+> mkdir cdrom/boot
+> mkdir cdrom/boot/grub
+> cp kernel.bin cdrom/boot/
+
+Create the grub.cfg file and then build the ISO image
+
+> grub-mkrescue -o cdrom.iso cdrom
+
+If everything works you should be able to run it. 
+
+> qemu-system-x86_64 -cdrom cdrom.iso
+
+

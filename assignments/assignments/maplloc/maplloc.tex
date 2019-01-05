@@ -1,0 +1,126 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage[T1]{fontenc} 
+\usepackage[latin1]{inputenc}
+ 
+\usepackage{listings} \lstset{language=c, breaklines=true, showstringspaces=false, xleftmargin=-10pt, frame=l}
+
+\usepackage{graphicx}
+
+
+\newcommand*\justify{%
+  \fontdimen2\font=0.4em% interword space
+  \fontdimen3\font=0.2em% interword stretch
+  \fontdimen4\font=0.1em% interword shrink
+  \fontdimen7\font=0.1em% extra space
+  \hyphenchar\font=`\-% allowing hyphenation
+}
+\begin{document}
+
+\begin{center} \vspace{20pt} \textbf{\large My malloc using mmap}\\
+\vspace{10pt} \textbf{Johan Montelius}\\ \vspace{10pt} \textbf{HT2016}
+\end{center}
+
+
+\section{Introduction}
+
+This is a version of the Mylloc experiment but here we will use the
+system call {\tt mmap()} instead of the system call {\tt sbrk()} when
+we're asking for memory from the operating system. If you're running
+on an OSX machine this is probably what you want to do since {\tt
+  sbrk()} is deprecated and if it is used,it is implemented in
+terms of {\tt mmap()}. It can also be interesting to look at even if
+you have completed the first assignment using {\tt sbrk()} since you will 
+learn how to use {\tt mmap()} to do what we want. 
+
+You need to read this tutorial together with the original
+tutorial. In this short tutorial we will implement our own version of
+{\tt sbrk()} so that the rest of the Mylloc system can run without any
+modifications. If one would do a {\tt mmap()} solution from scratch
+this is probably not the most straight forward solution.
+
+\section{Implement sbrk()}
+
+We will implement the first simple version of malloc as described in
+the Mylloc paper. What we need is therefore an implementation of {\tt
+  sbrk()}, if we can fake this we're home. Create a file called {\tt
+  sbrk.c} and start coding.
+
+In the first part of {\tt sbrk.c} we use a GCC extension to the C
+language. We're declaring a function, {\tt init()}, to be a {\em
+  constructor}. This means that the function will be called when the
+program is loaded. The feature is normally used by shared libraries
+but we will make use of it in our experiment (does this work using
+Clang?).
+
+
+\begin{lstlisting}
+#include <stdlib.h>
+#include <sys/mman.h>
+
+#define MAX_HEAP 64*1024*4096
+
+char *heap;
+
+char *brkp = NULL;
+char *endp = NULL;
+
+static void init() __attribute__((constructor));
+
+void init() {
+  heap = (char *)mmap(NULL, MAX_HEAP,  
+                      (PROT_READ | PROT_WRITE), 
+                      (MAP_PRIVATE | MAP_ANONYMOUS), -1, 0);
+  brkp = heap;
+  endp = brkp + MAX_HEAP;
+}
+\end{lstlisting}
+
+What we will do in the initialization is to allocate a heap of our
+own. We do this with a call to the {\tt mmap()} system call. The
+procedure will allocate a huge area ({\tt MAX\_HEAP} big) that is read
+and writable. It is a private area and is not the mapping of a file
+i.e. simply new virtual memory.
+
+Once we know this we can implement a procedure {\tt sbrk()} that when
+requested will increment the {\tt brkp} pointer and return a pointer
+to the start of the allocated block. 
+
+\begin{lstlisting}
+void *sbrk(size_t size) {
+  if(size == 0) {
+    return (void *)brkp;
+  }
+  void *free = (void *)brkp;
+
+  brkp += size;
+  if(brkp >= endp) {
+    return NULL;
+  }
+  return free;
+}
+\end{lstlisting}
+
+We know that {\tt sbrk()} should return the {\em top of the heap} when
+called with a zero argument so this is what we do. If we have reached
+the end of the heap we return {\tt NULL} which is also fine according
+to the documentation. We could of course do another call to {\tt
+  mmap()} to get more memory but this is fine for our purposes.
+
+If you now compile this file we will have an object file that implements {\tt sbrk()}. 
+
+\begin{verbatim}
+ > gcc -c sbrk.c
+\end{verbatim}
+
+We can then link everything together and doing so the call to {\tt
+  sbrk()} in {\tt mylloc.c} will use our version.
+
+\begin{verbatim}
+ > gcc -o bench sbrk.o rand.o mylloc.o bench.c -lm
+\end{verbatim}
+
+If you look carefully you will notice that our mmapped heap is not
+located at the same place as the regular heap.
+
+\end{document}
