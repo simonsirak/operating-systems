@@ -1,3 +1,3 @@
 # operating-systems
-OS Theory.
-You should spend approximately 8h per week on this course (#points/1.5) * 40 / (#weeks of study (10 for 1 period)).
+These are notes/summaries that I took for ID1206 Operating Systems at KTH. The theory directory contains summaries from the 
+awesome course book, "[Operating Systems: Three Easy Pieces](http://pages.cs.wisc.edu/~remzi/OSTEP/)" by Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau. I highly recommend that book!
